@@ -3,18 +3,22 @@
 # https://pythontic.com/modules/socket/udp-client-server-example
 
 import socket
+import time
 
-msgFromClient       = "Hello, this is the client"
-bytesToSend         = str.encode(msgFromClient)
-# Matches to the IP and port of the running server
-serverAddressPort   = ("127.0.0.1", 80085)
-bufferSize          = 1024
+print("A python client.py by Kieron")
+for pings in range(10):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # For the try catch, in the event the packet is dropped, connect
+    client_socket.settimeout(1.0)
+    message = b'PING'
+    addr = ("127.0.0.1", 65000)
 
-# Create a UDP socket at client side
-UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-
-# Send to server using created UDP socket
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-msgFromServer = UDPClientSocket.recvfrom(bufferSize)
-msg = "Message from Server {}".format(msgFromServer[0])
-print(msg)
+    start = time.time()
+    client_socket.sendto(message, addr)
+    try:
+        data, server = client_socket.recvfrom(1024)
+        end = time.time()
+        elapsed = end - start
+        print(pings, ": sent PING... recieved {}".format(data))
+    except socket.timeout:
+        print(pings, ": sent PING... Timed Out")
